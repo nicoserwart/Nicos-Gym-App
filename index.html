@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nico Hypertrophy">
+<meta name="theme-color" content="#0a0a0f">
+<title>Nico – Hypertrophy Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f;--surface:#12121a;--surface-2:#161622;--card:#171723;
+  --border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.14);
+  --text:#f0f0ff;--sub:#9494b3;
+  --active:#3a7dff;--active-glow:rgba(58,125,255,0.2);--active-dark:#12285f;
+  --success:#22c55e;--warn:#f59e0b;--orange:#ff6b35;
+  --shadow:0 8px 30px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{
+  background:radial-gradient(circle at top,rgba(58,125,255,0.08),transparent 30%),var(--bg);
+  color:var(--text);font-family:'Inter',sans-serif;
+  min-height:100vh;overflow-x:hidden;padding-bottom:120px;
+}
+button,input,select{font:inherit;}
+::-webkit-scrollbar{width:0;height:0;}
+.safe-bottom{height:env(safe-area-inset-bottom,0px);}
+
+/* HEADER */
+.app-header{
+  padding:max(env(safe-area-inset-top),18px) 16px 10px;
+  text-align:center;
+  background:rgba(10,10,15,0.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.app-header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,6vw,36px);letter-spacing:2px;line-height:1;}
+.app-header .sub{font-size:10px;color:var(--sub);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.accent-line{width:50px;height:3px;background:linear-gradient(90deg,var(--active),transparent);margin:7px auto 0;border-radius:2px;}
+
+/* PHASE BANNER */
+.phase-banner{
+  margin:12px 16px 0;
+  padding:10px 14px;
+  background:var(--active-dark);
+  border:1px solid rgba(58,125,255,0.25);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.phase-banner-name{font-size:13px;font-weight:800;color:var(--active);}
+.phase-banner-desc{font-size:11px;color:var(--sub);}
+
+/* TABS */
+.phase-tabs,.day-tabs{display:flex;overflow-x:auto;gap:8px;padding:10px 16px;scrollbar-width:none;}
+.phase-tabs::-webkit-scrollbar,.day-tabs::-webkit-scrollbar{display:none;}
+.phase-tab,.day-tab{
+  flex-shrink:0;padding:9px 14px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);color:var(--sub);
+  font-weight:700;font-size:11px;cursor:pointer;transition:all .2s;
+  white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;
+}
+.phase-tab.active{
+  background:linear-gradient(180deg,var(--active),color-mix(in srgb,var(--active) 70%,black));
+  border-color:var(--active);color:#fff;box-shadow:0 0 14px var(--active-glow);
+}
+.day-tab.active{background:rgba(255,255,255,0.06);border-color:var(--active);color:var(--active);}
+
+/* WEEK */
+.week-selector{display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 16px 4px;}
+.week-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;}
+.week-btns{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
+.week-btn{
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid var(--border);background:var(--surface);color:var(--sub);
+  font-weight:800;font-size:12px;cursor:pointer;transition:all .2s;
+}
+.week-btn.active{background:var(--active);border-color:var(--active);color:#fff;box-shadow:0 0 12px var(--active-glow);}
+
+/* PROGRESS */
+.progress-bar-wrap{padding:4px 16px 10px;}
+.progress-bar-track{height:5px;background:var(--surface-2);border-radius:999px;overflow:hidden;border:1px solid var(--border);}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--active),color-mix(in srgb,var(--active) 60%,white));border-radius:999px;transition:width .4s;}
+.progress-text{font-size:10px;color:var(--sub);text-align:right;margin-top:5px;font-weight:600;}
+
+/* EXERCISE LIST */
+.section-label{padding:4px 16px 8px;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--sub);}
+.exercise-list{padding:0 16px;display:flex;flex-direction:column;gap:10px;}
+
+.ex-card{
+  background:linear-gradient(160deg,rgba(255,255,255,0.025),transparent),var(--card);
+  border:1px solid var(--border);border-radius:20px;overflow:hidden;
+  transition:border-color .2s;box-shadow:var(--shadow);
+}
+.ex-card.logged{border-color:rgba(34,197,94,.5);}
+.ex-card.priority-card{border-left:3px solid var(--orange);}
+.ex-card.progressive{border-left:3px solid var(--success);}
+
+.ex-header{display:flex;align-items:flex-start;gap:11px;padding:14px 14px 12px;cursor:pointer;}
+.ex-index{
+  width:32px;height:32px;border-radius:10px;background:var(--surface-2);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:var(--sub);flex-shrink:0;margin-top:1px;
+}
+.ex-title{flex:1;min-width:0;}
+.ex-name{font-weight:800;font-size:14px;color:var(--text);line-height:1.2;}
+.ex-meta{font-size:10px;color:var(--sub);margin-top:3px;line-height:1.4;}
+
+.tag-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
+.tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 7px;border-radius:999px;}
+.tag-muscle{background:rgba(58,125,255,0.1);color:var(--active);border:1px solid rgba(58,125,255,0.18);}
+.tag-priority{background:rgba(255,107,53,0.1);color:var(--orange);border:1px solid rgba(255,107,53,0.2);}
+.tag-progressive{background:rgba(34,197,94,0.1);color:var(--success);border:1px solid rgba(34,197,94,0.2);}
+
+.ex-badge{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.badge{padding:4px 9px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;}
+.badge-weight{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border);}
+.badge-pct{background:var(--active-dark);color:var(--active);border:1px solid rgba(255,255,255,0.04);}
+
+.ex-body{padding:0 14px 14px;display:none;border-top:1px solid rgba(255,255,255,0.05);}
+.ex-body.open{display:block;}
+
+/* PROGRESSIVE OVERLOAD BANNER */
+.prog-banner{
+  margin:12px 0 4px;
+  padding:10px 12px;
+  background:rgba(34,197,94,0.08);
+  border:1px solid rgba(34,197,94,0.2);
+  border-radius:12px;
+  font-size:12px;color:var(--success);font-weight:700;
+  display:flex;align-items:center;gap:8px;
+}
+
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 10px;}
+.info-cell{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px;text-align:center;}
+.info-val{font-size:15px;font-weight:800;color:var(--text);}
+.info-key{font-size:9px;color:var(--sub);font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+
+.notes-badge{
+  font-size:11px;color:var(--warn);
+  background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);
+  border-radius:12px;padding:9px 11px;margin-bottom:10px;
+}
+
+/* SET LOGGING */
+.set-log-list{display:flex;flex-direction:column;gap:8px;}
+.set-row{
+  display:grid;grid-template-columns:48px 1fr 1fr 88px;gap:7px;align-items:end;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:9px;
+}
+.set-number{
+  height:44px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;background:var(--surface-2);border:1px solid var(--border);
+  font-size:11px;font-weight:800;color:var(--sub);
+}
+.log-input-wrap{min-width:0;}
+.log-input{
+  width:100%;background:#101019;border:1px solid var(--border-strong);
+  border-radius:10px;color:var(--text);font-size:15px;font-weight:700;
+  padding:12px 8px;text-align:center;-webkit-appearance:none;
+}
+.log-input:focus{outline:none;border-color:var(--active);box-shadow:0 0 0 3px var(--active-glow);}
+.log-label{font-size:9px;color:var(--sub);font-weight:800;text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-top:3px;}
+.set-save-btn{
+  height:44px;background:var(--active);border:none;border-radius:10px;
+  color:#fff;font-weight:800;font-size:11px;cursor:pointer;
+  letter-spacing:.3px;text-transform:uppercase;box-shadow:0 0 10px var(--active-glow);
+}
+.set-save-btn.saved{background:var(--success);box-shadow:none;}
+
+.exercise-actions{display:flex;gap:8px;margin-top:10px;}
+.action-btn{
+  flex:1;padding:11px 12px;border-radius:12px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);font-weight:700;cursor:pointer;font-size:12px;
+}
+.action-btn.primary{background:var(--active);border-color:var(--active);color:#fff;box-shadow:0 0 12px var(--active-glow);}
+
+/* FAB */
+.settings-btn{
+  position:fixed;bottom:max(env(safe-area-inset-bottom),18px);right:16px;
+  width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(180deg,var(--active),color-mix(in srgb,var(--active) 72%,black));
+  border:none;cursor:pointer;font-size:20px;z-index:200;
+  box-shadow:0 8px 28px var(--active-glow);transition:all .25s;
+}
+.settings-btn:active{transform:scale(.93);}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:300;display:none;align-items:flex-end;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  width:100%;max-height:92vh;background:var(--surface);
+  border-radius:26px 26px 0 0;border-top:1px solid var(--border);
+  overflow-y:auto;padding:18px 16px max(env(safe-area-inset-bottom),20px);
+}
+.modal-handle{width:44px;height:5px;border-radius:999px;background:var(--border-strong);margin:0 auto 14px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);margin-bottom:3px;}
+.modal-sub{font-size:11px;color:var(--sub);margin-bottom:16px;line-height:1.5;}
+.xrm-group{margin-bottom:16px;}
+.xrm-group-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--active);margin-bottom:7px;}
+.xrm-row{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);border-radius:13px;
+  padding:11px;margin-bottom:7px;
+}
+.xrm-label-wrap{flex:1;display:flex;flex-direction:column;gap:2px;}
+.xrm-label{font-weight:800;font-size:13px;color:var(--text);}
+.xrm-hint{font-size:10px;color:var(--sub);font-weight:500;line-height:1.35;}
+.xrm-input{
+  width:74px;background:#101019;border:1px solid var(--border-strong);border-radius:10px;
+  color:var(--text);font-weight:800;font-size:14px;padding:9px;text-align:center;-webkit-appearance:none;
+}
+.xrm-input:focus{outline:none;border-color:var(--active);}
+.xrm-unit{font-size:11px;color:var(--sub);font-weight:700;}
+.save-xrm-btn{
+  width:100%;padding:15px;border-radius:14px;border:none;
+  background:var(--active);color:#fff;font-weight:800;font-size:14px;
+  cursor:pointer;letter-spacing:.8px;text-transform:uppercase;margin-top:8px;
+  box-shadow:0 0 18px var(--active-glow);
+}
+
+.save-toast{
+  position:fixed;top:76px;left:50%;transform:translateX(-50%);
+  background:var(--success);color:#fff;border-radius:999px;
+  padding:9px 18px;font-weight:800;font-size:12px;z-index:400;
+  display:none;pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.3);
+}
+.save-toast.show{display:block;}
+.empty{text-align:center;padding:44px 20px;color:var(--sub);}
+
+@media(max-width:400px){
+  .set-row{grid-template-columns:42px 1fr 1fr 80px;}
+  .ex-header{padding:12px;}
+}
+</style>
+</head>
+<body>
+
+<div class="save-toast" id="toast"></div>
+
+<div class="app-header">
+  <h1>Hypertrophy Plan</h1>
+  <div class="sub">Nico · Upper / Lower · 4×/Woche</div>
+  <div class="accent-line"></div>
+</div>
+
+<div class="phase-tabs" id="phaseTabs"></div>
+<div id="phaseBanner"></div>
+<div class="week-selector" id="weekSelector"></div>
+<div class="day-tabs" id="dayTabs"></div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-text" id="progressText">0 / 0 Sätze geloggt</div>
+</div>
+<div class="exercise-list" id="exList"></div>
+
+<button class="settings-btn" onclick="openSettings()">&#9881;&#65039;</button>
+
+<div class="modal-overlay" id="xrmModal" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">XRM Einstellungen</div>
+    <div class="modal-sub">Trage das Gewicht ein, mit dem du genau X Wdh schaffst (angegeben beim Hint). Die App berechnet per Epley automatisch das richtige Gewicht für jede Phase und Woche.</div>
+    <div id="xrmFields"></div>
+    <button class="save-xrm-btn" onclick="saveXRM()">Speichern &amp; berechnen</button>
+  </div>
+</div>
+
+<div class="safe-bottom"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// XRM DEFINITIONEN
+// ═══════════════════════════════════════════════════════
+const XRM_DEFS = [
+  {group:'Compound Drücken', items:[
+    {key:'bench',       label:'Bankdrücken',       hint:'5RM – Gewicht für genau 5 Wdh'},
+    {key:'ohp',         label:'Military Press',    hint:'6RM – Gewicht für genau 6 Wdh'},
+    {key:'chestpress',  label:'Brustpresse (Maschine)', hint:'10RM – Gewicht für 10 Wdh'},
+  ]},
+  {group:'Isolation Drücken & Brust', items:[
+    {key:'incline',     label:'Incline DB Press',  hint:'10RM – Gewicht pro Hantel für 10 Wdh'},
+    {key:'butterfly',   label:'Butterfly',         hint:'12RM – Gewicht für 12 Wdh'},
+    {key:'lateral',     label:'Seitheben',         hint:'15RM – Gewicht für 15 Wdh'},
+  ]},
+  {group:'Compound Ziehen – Rücken ★', items:[
+    {key:'pullup',      label:'Weighted Pullups',  hint:'5RM – Zusatzgewicht für 5 Wdh'},
+    {key:'machinerow',  label:'Maschine Row',      hint:'10RM – Gewicht für 10 Wdh'},
+    {key:'latzug',      label:'Latzug',            hint:'8RM – Gewicht für 8 Wdh'},
+  ]},
+  {group:'Isolation Ziehen', items:[
+    {key:'cablerow',    label:'Cable Row',         hint:'12RM – Gewicht für 12 Wdh'},
+    {key:'facepull',    label:'Face Pull',         hint:'15RM – Gewicht für 15 Wdh'},
+    {key:'pullover',    label:'Pullover (Kabel)',   hint:'12RM – Gewicht für 12 Wdh'},
+  ]},
+  {group:'Beine', items:[
+    {key:'squat',       label:'Squat',             hint:'5RM – Gewicht für genau 5 Wdh'},
+    {key:'deadlift',    label:'Deadlift',          hint:'4RM – Gewicht für genau 4 Wdh'},
+    {key:'legpress',    label:'Beinpresse',        hint:'12RM – Gewicht für 12 Wdh'},
+    {key:'rdl',         label:'RDL',               hint:'8RM – Gewicht für 8 Wdh'},
+    {key:'legcurl',     label:'Leg Curl',          hint:'12RM – Gewicht für 12 Wdh'},
+    {key:'legext',      label:'Leg Extension',     hint:'12RM – Gewicht für 12 Wdh'},
+  ]},
+  {group:'Waden ★', items:[
+    {key:'calfstand',   label:'Calf Raise stehend', hint:'10RM – Gewicht für 10 Wdh'},
+  ]},
+  {group:'Unterarme & Grip ★', items:[
+    {key:'hammer',      label:'Hammer Curl',        hint:'10RM – Gewicht für 10 Wdh'},
+    {key:'wristcurl',   label:'Wrist Curl',         hint:'15RM – Gewicht für 15 Wdh'},
+    {key:'revwrist',    label:'Reverse Wrist Curl', hint:'15RM – Gewicht für 15 Wdh'},
+  ]},
+  {group:'Arme', items:[
+    {key:'bicep',       label:'Bizeps Curl',        hint:'10RM – Gewicht für 10 Wdh'},
+    {key:'tricep',      label:'Trizeps Pushdown',   hint:'12RM – Gewicht für 12 Wdh'},
+  ]},
+];
+
+const XRM_DEFAULTS = {
+  bench:120, ohp:55, chestpress:80, incline:32, butterfly:60, lateral:16,
+  pullup:20, machinerow:80, latzug:80, cablerow:70, facepull:20, pullover:40,
+  squat:140, deadlift:160, legpress:200, rdl:130, legcurl:60, legext:70,
+  calfstand:110,
+  hammer:20, wristcurl:20, revwrist:15,
+  bicep:18, tricep:30,
+};
+
+const XRM_REF_REPS = {
+  bench:5, ohp:6, chestpress:10, incline:10, butterfly:12, lateral:15,
+  pullup:5, machinerow:10, latzug:8, cablerow:12, facepull:15, pullover:12,
+  squat:5, deadlift:4, legpress:12, rdl:8, legcurl:12, legext:12,
+  calfstand:10,
+  hammer:10, wristcurl:15, revwrist:15,
+  bicep:10, tricep:12,
+};
+
+// ═══════════════════════════════════════════════════════
+// PHASEN
+// 6 Phasen: Vol I (4W) → Vol II (4W) → Mini-Deload (1W)
+//           → Intensity (4W) → Strength (3W) → Deload (1W)
+// ═══════════════════════════════════════════════════════
+const PHASES = [
+  {id:'vol1',      label:'Volume I',      weeks:4, desc:'Basis aufbauen · hohe Wdh · Pump'},
+  {id:'vol2',      label:'Volume II',     weeks:4, desc:'Mehr Volumen · Progression · +1 Satz'},
+  {id:'minideload',label:'Mini-Deload',   weeks:1, desc:'Kurze Erholung · 60% · frisch bleiben'},
+  {id:'int',       label:'Intensity',     weeks:4, desc:'Gewicht steigt · Wdh sinken · schwerer'},
+  {id:'str',       label:'Strength',      weeks:3, desc:'Compound schwer · Muskeln rekrutieren'},
+  {id:'deload',    label:'Deload',        weeks:1, desc:'Vollständige Erholung · nächster Cycle'},
+];
+
+const DAY_LABELS    = ['Montag','Mittwoch','Freitag','Samstag'];
+const DAY_SUBTITLES = ['Upper A – Bench + Rücken','Lower A – Squat + Waden','Upper B – Military + Rücken Vol.','Lower B – Deadlift + Beine'];
+
+// ═══════════════════════════════════════════════════════
+// PHASEN-KONFIGURATION
+// Ziel-Reps je Woche → Epley berechnet das Gewicht
+// Sätze Compound / Isolation / Priorität (Rücken/Waden/Unterarme)
+// ═══════════════════════════════════════════════════════
+// PHASEN-KONFIGURATION
+//
+// Typen:
+//   c  = Compound        (Bench, Squat, Deadlift, OHP, Pullups, Row)
+//   i  = Isolation       (Incline, Butterfly, Bizeps, Trizeps, Legcurl...)
+//   p  = Priorität       (Rücken, Unterarme – mehr Sätze als Isolation)
+//   w  = Waden           (eigene höhere Satzzahl, da nur 1 Übung statt 2)
+//
+// Sätze-Logik:
+//   Volume I:   c=3, i=3, p=3, w=4   → Einstieg, solides Volumen
+//   Volume II:  c=4, i=3, p=4, w=5   → Volumen-Peak
+//   Mini-Deload:c=2, i=2, p=2, w=2   → Erholung
+//   Intensity:  c=4, i=3, p=4, w=5   → Gleich Vol II, aber schwerer
+//   Strength:   c=4, i=2, p=3, w=4   → Compound Fokus, Iso runter
+//   Deload:     c=2, i=2, p=2, w=2   → Erholung
+//
+// Ziel-Reps (für Epley-Berechnung):
+//   Volume:    hohe Reps (14→11) = leichte Gewichte, viel Volumen
+//   Intensity: mittlere Reps (10→7) = deutlich schwerer
+//   Strength:  tiefe Reps (6→4) = nahe am Maximum
+//   Deload:    mittlere Reps (12) = ~60% subjektiv leicht
+// ═══════════════════════════════════════════════════════
+const PHASE_CFG = {
+  vol1:{
+    cr:[14,13,12,11], ir:[17,16,15,14], pr:[15,14,13,12], wr:[13,12,11,10],
+    sc:3, si:3, sp:3, sw:4,
+    restC:'2:00', restI:'1:15', restP:'1:30', restW:'1:15',
+    desc:'3 Sätze · hohe Wdh · Technik & Verbindung aufbauen'
+  },
+  vol2:{
+    cr:[13,12,11,10], ir:[16,15,14,13], pr:[14,13,12,11], wr:[12,11,10,9],
+    sc:4, si:3, sp:4, sw:5,
+    restC:'2:00', restI:'1:15', restP:'1:30', restW:'1:15',
+    desc:'4 Sätze Compound · Volumen-Peak · Waden 5 Sätze'
+  },
+  minideload:{
+    cr:[14], ir:[16], pr:[15], wr:[14],
+    sc:2, si:2, sp:2, sw:2,
+    restC:'1:30', restI:'1:00', restP:'1:00', restW:'1:00',
+    desc:'2 Sätze · ~60% · aktive Erholung – frisch bleiben'
+  },
+  int:{
+    cr:[10,9,8,7], ir:[13,12,11,10], pr:[12,11,10,9], wr:[10,9,8,7],
+    sc:4, si:3, sp:4, sw:5,
+    restC:'2:30', restI:'1:30', restP:'2:00', restW:'1:30',
+    desc:'4 Sätze · Gewicht deutlich schwerer · RIR ~2'
+  },
+  str:{
+    cr:[6,5,4], ir:[10,9,8], pr:[9,8,7], wr:[8,7,6],
+    sc:4, si:2, sp:3, sw:4,
+    restC:'3:30', restI:'2:00', restP:'2:00', restW:'1:30',
+    desc:'4 Sätze Compound · schwer · Isolation reduziert · RIR ~1'
+  },
+  deload:{
+    cr:[12], ir:[15], pr:[12], wr:[12],
+    sc:2, si:2, sp:2, sw:2,
+    restC:'1:30', restI:'1:00', restP:'1:00', restW:'1:00',
+    desc:'2 Sätze · ~55% · vollständige Erholung'
+  },
+};
+
+function getCfg(phase, wi) {
+  const c = PHASE_CFG[phase] || PHASE_CFG.vol1;
+  const i = Math.min(wi, c.cr.length-1);
+  return {
+    CR:c.cr[i], IR:c.ir[i], PR:c.pr[i], WR:c.wr[i],
+    SC:c.sc, SI:c.si, SP:c.sp, SW:c.sw,
+    RC:c.restC, RI:c.restI, RP:c.restP, RW:c.restW,
+  };
+}
+
+function repRange(t) {
+  if(t<=4)  return `${t}`;
+  if(t<=6)  return `${t-1}-${t+1}`;
+  if(t<=10) return `${t-1}-${t+2}`;
+  return `${t-2}-${t+3}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ÜBUNGSPLAN
+// Typen: c=compound  i=isolation  p=priorität  w=waden
+// prio=true → orange Rand in der UI
+// ═══════════════════════════════════════════════════════
+function buildExercises(phase, wi, day) {
+  const {CR,IR,PR,WR,SC,SI,SP,SW,RC,RI,RP,RW} = getCfg(phase, wi);
+
+  function ex(name, key, type, muscle, note='', prio=false) {
+    let tr, sets, rest;
+    if(type==='c'){ tr=CR; sets=SC; rest=RC; }
+    else if(type==='p'){ tr=PR; sets=SP; rest=RP; }
+    else if(type==='w'){ tr=WR; sets=SW; rest=RW; }
+    else { tr=IR; sets=SI; rest=RI; } // 'i'
+    return {name, key, tr, reps:repRange(tr), sets, rest, muscle, note, prio, type};
+  }
+
+  // ── MONTAG: UPPER A ──────────────────────────────────────
+  // Bench schwer · Rücken Priorität · Trizeps · Unterarme
+  if(day===0) return [
+    ex('Bankdrücken',        'bench',      'c', 'Brust',              'Hauptbewegung – voller ROM, Schulterblätter zusammen'),
+    ex('Weighted Pullups',   'pullup',     'p', 'Rücken ★',           'Voller Hänge unten, Brust zur Stange oben', true),
+    ex('Maschine Row',       'machinerow', 'p', 'Rücken ★',           'Brust an Polster, Ellbogen nah, Squeeze oben', true),
+    ex('Incline DB Press',   'incline',    'i', 'Obere Brust',        'Kontrolliert, voller Stretch unten'),
+    ex('Butterfly',          'butterfly',  'i', 'Brust Isolation',    'Leichte Beugung im Ellbogen, Stretch spüren'),
+    ex('Trizeps Pushdown',   'tricep',     'i', 'Trizeps',            'Ellbogen fixiert, voll strecken unten'),
+    ex('Hammer Curl',        'hammer',     'p', 'Unterarme ★',        'Neutral, langsam runter – Unterarm & Bizeps', true),
+  ];
+
+  // ── MITTWOCH: LOWER A ────────────────────────────────────
+  // Squat schwer · Beine · Waden + Unterarme
+  if(day===1) return [
+    ex('Squat',              'squat',      'c', 'Quads/Gesäss',       'Hauptbewegung – tief, aufrechter Oberkörper'),
+    ex('Leg Press',          'legpress',   'c', 'Quads/Hams',         'Fussbreite variieren, voller ROM'),
+    ex('Leg Curl',           'legcurl',    'i', 'Hamstrings',         'Voll strecken unten, Squeeze oben halten'),
+    ex('Leg Extension',      'legext',     'i', 'Quads',              'Squeeze oben 1 Sek halten'),
+    ex('Calf Raise stehend', 'calfstand',  'w', 'Waden ★',            'Voll strecken + voll beugen, langsam – 4-5 Sätze', true),
+    ex('Wrist Curl',         'wristcurl',  'p', 'Unterarme ★',        'Langsam, voller ROM, Unterarm auf Oberschenkel', true),
+    ex('Reverse Wrist Curl', 'revwrist',   'p', 'Unterarme ★',        'Direkt nach Wrist Curl – Extensor-Seite', true),
+  ];
+
+  // ── FREITAG: UPPER B ─────────────────────────────────────
+  // Military schwer · Rücken Volumen · Pullover · Arme · Unterarme
+  if(day===2) return [
+    ex('Military Press',     'ohp',        'c', 'Schulter',           'Hauptbewegung – leichter Vorstoss, kein Hohlkreuz'),
+    ex('Latzug',             'latzug',     'p', 'Rücken ★',           'Schulterbreiter Griff, Brust raus oben', true),
+    ex('Cable Row',          'cablerow',   'p', 'Rücken ★',           'Weiter Griff – oberer Rücken Fokus', true),
+    ex('Pullover (Kabel)',   'pullover',   'p', 'Lats / Brust ★',     'Arme leicht gebeugt, grosser Bogen – Lat Stretch', true),
+    ex('Brustpresse Maschine','chestpress','i', 'Brust',              'Voller ROM, kontrolliert – pump nach Bench'),
+    ex('Seitheben',          'lateral',    'i', 'Seitl. Schulter',    'Kein Schwung, kleine Pause oben'),
+    ex('Bizeps Curl',        'bicep',      'i', 'Bizeps',             'Supination oben, kontrolliert runter'),
+  ];
+
+  // ── SAMSTAG: LOWER B ─────────────────────────────────────
+  // Deadlift schwer · Hams/Rücken · Waden + Unterarme
+  if(day===3) return [
+    ex('Deadlift',           'deadlift',   'c', 'Rücken/Beine',       'Hauptbewegung – Bar am Schienbein, minimaler Hinge'),
+    ex('RDL',                'rdl',        'c', 'Hamstrings',         'Hüftbreite, Rücken neutral – stretch spüren'),
+    ex('Leg Press',          'legpress',   'i', 'Quads',              'Enger Stand – Quad-Fokus'),
+    ex('Leg Curl',           'legcurl',    'i', 'Hamstrings',         'Schwerer als Mittwoch'),
+    ex('Calf Raise stehend', 'calfstand',  'w', 'Waden ★',            'Andere Fusstellung als Mittwoch – 4-5 Sätze', true),
+    ex('Hammer Curl',        'hammer',     'p', 'Unterarme ★',        'Schwerer als Montag – Progression tracken', true),
+    ex('Trizeps Pushdown',   'tricep',     'i', 'Trizeps',            '2. Trizeps-Session der Woche – 2x Frequenz'),
+  ];
+
+  return [];
+}
+
+// ═══════════════════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════════════════
+let state = {phase:'vol1', week:1, day:0};
+const SKEY_XRM  = 'nico_hyp2_xrm';
+const SKEY_PROG = 'nico_hyp2_prog'; // progressive overload overrides
+
+function getXRM(){
+  try{const s=localStorage.getItem(SKEY_XRM);if(s)return{...XRM_DEFAULTS,...JSON.parse(s)};}catch(e){}
+  return{...XRM_DEFAULTS};
+}
+function saveXRMData(d){localStorage.setItem(SKEY_XRM,JSON.stringify(d));}
+
+// Progressive overload: speichert +2.5kg Vorschläge die der User akzeptiert hat
+function getProgOverrides(){
+  try{const s=localStorage.getItem(SKEY_PROG);if(s)return JSON.parse(s);}catch(e){}
+  return{};
+}
+function saveProgOverrides(d){localStorage.setItem(SKEY_PROG,JSON.stringify(d));}
+
+function lk(p,w,d,ei,si){return`nico_hyp2_log_${p}_w${w}_d${d}_e${ei}_s${si}`;}
+function getLog(p,w,d,ei,si){try{return JSON.parse(localStorage.getItem(lk(p,w,d,ei,si)));}catch(e){return null;}}
+function setLog(p,w,d,ei,si,v){localStorage.setItem(lk(p,w,d,ei,si),JSON.stringify(v));}
+function delLog(p,w,d,ei,si){localStorage.removeItem(lk(p,w,d,ei,si));}
+
+// ═══════════════════════════════════════════════════════
+// EPLEY UTILS
+// ═══════════════════════════════════════════════════════
+function r25(v){return Math.round((Number(v)||0)/2.5)*2.5;}
+function fmtKg(v){const n=Number(v)||0;return Number.isInteger(n)?String(n):n.toFixed(1).replace(/\.0$/,'');}
+
+function epley1RM(kg,ref){return(Number(kg)||0)*(1+ref/30);}
+function epleyTarget(kg,ref,target){
+  if(!kg)return 0;
+  return epley1RM(kg,ref)/(1+target/30);
+}
+function calcWeight(xrm,key,targetReps){
+  return r25(epleyTarget(xrm[key]||0, XRM_REF_REPS[key]||8, targetReps));
+}
+function pctOf1RM(xrm,key,targetReps){
+  const oneRM=epley1RM(xrm[key]||0, XRM_REF_REPS[key]||8);
+  const w=calcWeight(xrm,key,targetReps);
+  return oneRM>0?Math.round((w/oneRM)*100):0;
+}
+
+// ═══════════════════════════════════════════════════════
+// PROGRESSIVE OVERLOAD CHECK
+// Wenn in der letzten Session alle Sätze obere Rep-Grenze
+// erreicht wurden → Vorschlag +2.5kg
+// ═══════════════════════════════════════════════════════
+function getUpperRep(repsStr){
+  const parts=String(repsStr).split('-');
+  return parseInt(parts[parts.length-1])||99;
+}
+
+function checkProgression(exIdx, ex){
+  // Schaue letzte Woche gleicher Tag gleiche Übung
+  const prevWeek=state.week-1;
+  if(prevWeek<1)return null;
+  const sets=ex.sets;
+  let allHitTop=true;
+  const upper=getUpperRep(ex.reps);
+  for(let s=0;s<sets;s++){
+    const l=getLog(state.phase,prevWeek,state.day,exIdx,s);
+    if(!l||!l.done||parseInt(l.reps)<upper){allHitTop=false;break;}
+  }
+  if(allHitTop) return true;
+  return false;
+}
+
+function countDone(exIdx,sets){
+  let n=0;
+  for(let s=0;s<sets;s++){const l=getLog(state.phase,state.week,state.day,exIdx,s);if(l&&l.done)n++;}
+  return n;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function renderAll(){renderPhaseTabs();renderPhaseBanner();renderWeekSelector();renderDayTabs();renderExercises();}
+
+function renderPhaseTabs(){
+  document.getElementById('phaseTabs').innerHTML=PHASES.map(p=>
+    `<button class="phase-tab ${state.phase===p.id?'active':''}" onclick="selectPhase('${p.id}')">${p.label}</button>`
+  ).join('');
+}
+
+function renderPhaseBanner(){
+  const p=PHASES.find(x=>x.id===state.phase)||PHASES[0];
+  const cfg=PHASE_CFG[p.id]||PHASE_CFG.vol1;
+  document.getElementById('phaseBanner').innerHTML=`
+    <div class="phase-banner">
+      <div><div class="phase-banner-name">${p.label}</div><div class="phase-banner-desc">${cfg.desc}</div></div>
+    </div>`;
+}
+
+function renderWeekSelector(){
+  const n=(PHASES.find(p=>p.id===state.phase)||{weeks:4}).weeks;
+  document.getElementById('weekSelector').innerHTML=
+    `<span class="week-label">Woche</span><div class="week-btns">${
+      Array.from({length:n},(_,i)=>
+        `<button class="week-btn ${state.week===i+1?'active':''}" onclick="selectWeek(${i+1})">${i+1}</button>`
+      ).join('')
+    }</div>`;
+}
+
+function renderDayTabs(){
+  document.getElementById('dayTabs').innerHTML=DAY_LABELS.map((d,i)=>
+    `<button class="day-tab ${state.day===i?'active':''}" onclick="selectDay(${i})">${d}</button>`
+  ).join('');
+}
+
+function renderExercises(){
+  const xrm=getXRM();
+  const wi=state.week-1;
+  const exs=buildExercises(state.phase,wi,state.day);
+  const el=document.getElementById('exList');
+
+  if(!exs.length){
+    el.innerHTML=`<div class="empty"><div style="font-size:40px;margin-bottom:10px">🏖️</div><div>Kein Training heute</div></div>`;
+    updateProgress(0,0);return;
+  }
+
+  let done=0,total=0;
+  let html=`<div class="section-label">${DAY_LABELS[state.day]} – ${DAY_SUBTITLES[state.day]}</div>`;
+
+  exs.forEach((ex,i)=>{
+    const w=calcWeight(xrm,ex.key,ex.tr);
+    const pct=pctOf1RM(xrm,ex.key,ex.tr);
+    const d=countDone(i,ex.sets);
+    done+=d;total+=ex.sets;
+    const logged=d===ex.sets;
+    const shouldProgress=state.week>1&&checkProgression(i,ex);
+    const suggestedW=shouldProgress?r25(w+2.5):null;
+
+    const cardClass=[
+      'ex-card',
+      logged?'logged':'',
+      ex.prio?'priority-card':'',
+      shouldProgress?'progressive':'',
+    ].filter(Boolean).join(' ');
+
+    html+=`
+    <div class="${cardClass}" id="ec_${i}">
+      <div class="ex-header" onclick="toggleEx(${i})">
+        <div class="ex-index">${String(i+1).padStart(2,'0')}</div>
+        <div class="ex-title">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-meta">${ex.sets} Sätze × ${ex.reps} Wdh · ${ex.rest} Pause · ${d}/${ex.sets} geloggt</div>
+          <div class="tag-row">
+            <span class="tag tag-muscle">${ex.muscle}</span>
+            ${ex.prio?'<span class="tag tag-priority">Priorität</span>':''}
+            ${shouldProgress?'<span class="tag tag-progressive">↑ Steigerung möglich</span>':''}
+          </div>
+        </div>
+        <div class="ex-badge">
+          <span class="badge badge-weight">${fmtKg(w)} kg</span>
+          <span class="badge badge-pct">${pct}% 1RM</span>
+        </div>
+      </div>
+      <div class="ex-body" id="eb_${i}">
+        ${shouldProgress?`
+        <div class="prog-banner">
+          🚀 Letzte Woche top Reps! Versuche heute <strong>${fmtKg(suggestedW)} kg</strong> (+2.5 kg)
+        </div>`:''}
+        <div class="info-grid">
+          <div class="info-cell"><div class="info-val">${fmtKg(w)}</div><div class="info-key">Basis kg</div></div>
+          <div class="info-cell"><div class="info-val">${ex.reps}</div><div class="info-key">Wdh</div></div>
+          <div class="info-cell"><div class="info-val">${ex.sets}</div><div class="info-key">Sätze</div></div>
+        </div>
+        ${ex.note?`<div class="notes-badge">💡 ${ex.note}</div>`:''}
+        <div class="set-log-list">${buildSetRows(ex,i,suggestedW||w)}</div>
+        <div class="exercise-actions">
+          <button class="action-btn primary" onclick="markAllDone(${i})">Alle speichern</button>
+          <button class="action-btn" onclick="clearAll(${i})">Zurücksetzen</button>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML=html;
+  updateProgress(done,total);
+}
+
+function buildSetRows(ex,exIdx,weight){
+  let html='';
+  for(let s=0;s<ex.sets;s++){
+    const l=getLog(state.phase,state.week,state.day,exIdx,s);
+    html+=`
+      <div class="set-row">
+        <div class="set-number">S ${s+1}</div>
+        <div class="log-input-wrap">
+          <input class="log-input" type="number" inputmode="decimal" id="kg_${exIdx}_${s}"
+            placeholder="${fmtKg(weight)}" value="${l?l.kg:''}" step="0.5">
+          <div class="log-label">kg</div>
+        </div>
+        <div class="log-input-wrap">
+          <input class="log-input" type="number" inputmode="numeric" id="rp_${exIdx}_${s}"
+            placeholder="${String(ex.reps).split('-')[0]||'10'}" value="${l?l.reps:''}" step="1">
+          <div class="log-label">Wdh</div>
+        </div>
+        <button class="set-save-btn ${l&&l.done?'saved':''}"
+          onclick="event.stopPropagation();saveSet(${exIdx},${s})">
+          ${l&&l.done?'✓ Ok':'Save'}
+        </button>
+      </div>`;
+  }
+  return html;
+}
+
+function updateProgress(done,total){
+  const pct=total?(done/total)*100:0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressText').textContent=`${done} / ${total} Sätze geloggt`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════
+function toggleEx(i){document.getElementById(`eb_${i}`)?.classList.toggle('open');}
+
+function saveSet(exIdx,setIdx){
+  const kg=document.getElementById(`kg_${exIdx}_${setIdx}`)?.value||'';
+  const reps=document.getElementById(`rp_${exIdx}_${setIdx}`)?.value||'';
+  setLog(state.phase,state.week,state.day,exIdx,setIdx,{kg,reps,done:true});
+  renderExercises();
+  document.getElementById(`eb_${exIdx}`)?.classList.add('open');
+  showToast('Satz gespeichert ✓');
+}
+
+function markAllDone(exIdx){
+  const xrm=getXRM();
+  const exs=buildExercises(state.phase,state.week-1,state.day);
+  const ex=exs[exIdx];if(!ex)return;
+  const w=calcWeight(xrm,ex.key,ex.tr);
+  for(let s=0;s<ex.sets;s++){
+    const kg=document.getElementById(`kg_${exIdx}_${s}`)?.value||fmtKg(w);
+    const reps=document.getElementById(`rp_${exIdx}_${s}`)?.value||'';
+    setLog(state.phase,state.week,state.day,exIdx,s,{kg,reps,done:true});
+  }
+  renderExercises();
+  document.getElementById(`eb_${exIdx}`)?.classList.add('open');
+  showToast('Übung gespeichert ✓');
+}
+
+function clearAll(exIdx){
+  const exs=buildExercises(state.phase,state.week-1,state.day);
+  const ex=exs[exIdx];if(!ex)return;
+  for(let s=0;s<ex.sets;s++)delLog(state.phase,state.week,state.day,exIdx,s);
+  renderExercises();
+  document.getElementById(`eb_${exIdx}`)?.classList.add('open');
+  showToast('Zurückgesetzt');
+}
+
+function selectPhase(id){state.phase=id;state.week=1;state.day=0;renderAll();}
+function selectWeek(w){state.week=w;renderAll();}
+function selectDay(d){state.day=d;renderDayTabs();renderExercises();}
+
+// ═══════════════════════════════════════════════════════
+// XRM MODAL
+// ═══════════════════════════════════════════════════════
+function openSettings(){
+  const xrm=getXRM();
+  let html='';
+  XRM_DEFS.forEach(g=>{
+    html+=`<div class="xrm-group"><div class="xrm-group-title">${g.group}</div>`;
+    g.items.forEach(item=>{
+      html+=`
+        <div class="xrm-row">
+          <div class="xrm-label-wrap">
+            <span class="xrm-label">${item.label}</span>
+            ${item.hint?`<span class="xrm-hint">${item.hint}</span>`:''}
+          </div>
+          <input class="xrm-input" type="number" inputmode="decimal"
+            id="xi_${item.key}" value="${xrm[item.key]||0}" step="0.5" min="0">
+          <span class="xrm-unit">kg</span>
+        </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('xrmFields').innerHTML=html;
+  document.getElementById('xrmModal').classList.add('open');
+}
+
+function saveXRM(){
+  const d={};
+  XRM_DEFS.forEach(g=>g.items.forEach(item=>{
+    const el=document.getElementById('xi_'+item.key);
+    if(el)d[item.key]=parseFloat(el.value)||0;
+  }));
+  saveXRMData(d);
+  document.getElementById('xrmModal').classList.remove('open');
+  renderExercises();
+  showToast('XRM gespeichert ✓');
+}
+
+function closeOnOverlay(e){
+  if(e.target===document.getElementById('xrmModal'))
+    document.getElementById('xrmModal').classList.remove('open');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+window.addEventListener('DOMContentLoaded',renderAll);
+</script>
+</body>
+</html>
